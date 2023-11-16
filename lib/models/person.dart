@@ -12,7 +12,7 @@ class Person {
     required this.profession,
     required this.image,
     String? id,
-  }) : id = uuid.v4();
+  }) : id = id ?? uuid.v4();
 
   final String id;
   final String name;

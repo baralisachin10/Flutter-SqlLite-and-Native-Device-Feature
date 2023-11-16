@@ -4,11 +4,24 @@ import 'package:portfolio_app/provider/person_provider.dart';
 import 'package:portfolio_app/screens/add_person_screen.dart';
 import 'package:portfolio_app/widgets/person_list.dart';
 
-class PersonListScreen extends ConsumerWidget {
+class PersonListScreen extends ConsumerStatefulWidget {
   const PersonListScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<PersonListScreen> createState() => _PersonListScreenState();
+}
+
+class _PersonListScreenState extends ConsumerState<PersonListScreen> {
+  late Future<void> _personList;
+
+  @override
+  void initState() {
+    super.initState();
+    _personList = ref.read(personProvider.notifier).loadPerson();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final persons = ref.watch(personProvider);
     return Scaffold(
       appBar: AppBar(
@@ -26,7 +39,13 @@ class PersonListScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: PersonList(persons: persons),
+      body: FutureBuilder(
+        future: _personList,
+        builder: (context, snapshot) =>
+            snapshot.connectionState == ConnectionState.waiting
+                ? const Center(child: CircularProgressIndicator())
+                : PersonList(persons: persons),
+      ),
     );
   }
 }
